@@ -1,0 +1,39 @@
+stages:
+  - test
+  - build
+  - deploy
+  - merge
+
+# Kiểm tra mã nguồn
+test:
+  script:
+    - echo "Running tests..."
+    - npm install
+    - npm test
+  only:
+    - merge_requests   # Chạy kiểm tra khi có Merge Request
+
+# Xây dựng ứng dụng
+build:
+  script:
+    - echo "Building the app..."
+    - docker build -t devops_cuoi_ki .
+  only:
+    - merge_requests   # Chạy build khi có Merge Request
+
+# Triển khai ứng dụng lên môi trường staging
+deploy:
+  script:
+    - echo "Deploying to staging..."
+    - docker run -d --name devops_cuoi_ki devops_cuoi_ki
+  only:
+    - merge_requests   # Chạy deploy khi có Merge Request
+
+# Tự động merge khi tất cả bài kiểm tra pass
+merge:
+  script:
+    - echo "Merging to master..."
+    - git checkout master
+    - git merge --no-ff $CI_COMMIT_REF_NAME  # Merge tự động
+  only:
+    - merge_requests   # Chạy khi có Merge Request và tất cả bước trước đó pass
