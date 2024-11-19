@@ -3,6 +3,14 @@ stages:
   - build       # Giai đoạn xây dựng ứng dụng
   - deploy      # Giai đoạn triển khai ứng dụng
 
+# Cấu hình Docker-in-Docker service
+services:
+  - docker:19.03.12-dind   # Cấu hình Docker-in-Docker (DinD) để chạy Docker từ trong GitLab CI
+
+# Trước khi chạy bất kỳ script nào, kiểm tra Docker
+before_script:
+  - docker info  # Kiểm tra thông tin Docker trong môi trường GitLab CI
+
 # Kiểm tra mã nguồn khi có thay đổi hoặc Merge Request
 test:
   stage: test
