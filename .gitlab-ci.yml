@@ -1,0 +1,29 @@
+stages:
+  - test
+  - build
+  - deploy
+
+# Kiểm tra mã nguồn
+test:
+  script:
+    - echo "Running tests..."
+    - npm install
+    - npm test
+  only:
+    - master
+
+# Xây dựng ứng dụng
+build:
+  script:
+    - echo "Building the app..."
+    - docker build -t devops_cuoi_ki .
+  only:
+    - master
+
+# Triển khai ứng dụng
+deploy:
+  script:
+    - echo "Deploying to production..."
+    - docker run -d --name devops_cuoi_ki devops_cuoi_ki
+  only:
+    - master
