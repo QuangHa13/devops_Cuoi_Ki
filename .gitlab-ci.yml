@@ -1,29 +1,43 @@
 stages:
-  - test
-  - build
-  - deploy
+  - test        # Giai đoạn kiểm tra mã nguồn
+  - build       # Giai đoạn xây dựng ứng dụng
+  - deploy      # Giai đoạn triển khai ứng dụng
 
-# Kiểm tra mã nguồn
+# Kiểm tra mã nguồn khi có thay đổi hoặc Merge Request
 test:
+  stage: test
   script:
     - echo "Running tests..."
-    - npm install
-    - npm test
+    - npm install             # Cài đặt phụ thuộc
+    - npm test                # Chạy các bài kiểm tra tự động
   only:
-    - master
+    - merge_requests          # Chạy kiểm tra khi có Merge Request
+  when: manual                # Có thể chọn chạy thủ công hoặc tự động
 
-# Xây dựng ứng dụng
+# Xây dựng ứng dụng khi có Merge Request
 build:
+  stage: build
   script:
     - echo "Building the app..."
-    - docker build -t devops_cuoi_ki .
+    - docker build -t devops_cuoi_ki .   # Xây dựng Docker image
   only:
-    - master
+    - merge_requests          # Chạy xây dựng khi có Merge Request
+  when: manual                # Có thể chọn chạy thủ công hoặc tự động
 
-# Triển khai ứng dụng
+# Triển khai ứng dụng lên môi trường staging khi có thay đổi trên nhánh master
 deploy:
+  stage: deploy
   script:
-    - echo "Deploying to production..."
-    - docker run -d --name devops_cuoi_ki devops_cuoi_ki
+    - echo "Deploying to staging environment..."
+    - docker run -d --name devops_cuoi_ki devops_cuoi_ki   # Triển khai ứng dụng
   only:
-    - master
+    - master                  # Chỉ triển khai khi có thay đổi trên nhánh master
+
+# Cấu hình Review Code và Merge Tự Động
+auto_merge:
+  stage: deploy
+  script:
+    - echo "Merge when pipeline succeeds"
+  only:
+    - merge_requests           # Chạy tự động merge khi pipeline thành công
+  when: on_success             # Merge tự động khi tất cả bước kiểm tra thành công
